@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('guestpartials/header', { pageTitle: pageTitle }) %>
+    <body>
+        <%- include('guestpartials/loader') %>  <!-- Loader -->
+        <%- include('guestpartials/navtop') %>  <!-- Top navigation -->
+        <%- include('guestpartials/leftbar', { activePage: activePage }) %>  <!-- Left sidebar -->
+        <%- include(contentFile) %>  <!-- Main content -->
+        <%- include('guestpartials/navbottom') %>  <!-- Bottom navigation -->
+        <%- include('guestpartials/footer') %>  <!-- Footer with scripts -->
+    </body>
+</html>

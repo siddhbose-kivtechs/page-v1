@@ -1,0 +1,27 @@
+{
+  "name": "kivtechs-v1-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "dependencies":{
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "express-rate-limit": "^7.4.1",
+    "install": "^0.13.0",
+    "mongodb": "^6.11.0",
+    "morgan": "^1.10.0",
+    "ulid": "^2.3.0"
+}  
+}
