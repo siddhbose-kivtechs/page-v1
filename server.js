@@ -3,11 +3,12 @@ import path from 'path';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';  // This works in ESM
 
 import applyMiddleware from './middleware/ulidmiddleware.js';  // Custom ULID middleware
 import guestroutes from './routes/guestroutes.js';  // Corrected path
 
+// Resolve file paths in ESM format
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
