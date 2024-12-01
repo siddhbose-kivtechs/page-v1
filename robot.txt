@@ -1,0 +1,36 @@
+
+# robots.txt for https://kivtechs.cloud
+
+# Allow all search engines to access all pages except for sensitive areas
+User-agent: *
+Disallow: /admin
+Disallow: /login
+Disallow: /dashboard/settings
+Disallow: /dashboard/reports
+
+# Sitemap for the main site (Parent Domain)
+Sitemap: https://kivtechs.cloud/sitemap.xml
+
+# Sitemap for the child domain (Admin Domain)
+Sitemap: https://katsy.com/admin-sitemap.xml
+
+# Allow access to all content under the main domain
+Allow: /terms
+Allow: /privacy
+Allow: /products
+Allow: /about
+Allow: /aimodels
+Allow: /aicore
+Allow: /pricing
+Allow: /koins
+Allow: /usage
+Allow: /profile
+
+# Disallow crawlers from specific non-public pages
+Disallow: /private
+Disallow: /admin
+Disallow: /admin/*
+
+# Block bots that crawl too aggressively
+User-agent: Googlebot-Image
+Crawl-delay: 10

@@ -1,3 +1,4 @@
+// guest routes 
 const express = require('express');
 const router = express.Router();
 
@@ -66,6 +67,68 @@ router.get('/pricing', (req, res) => {
         pageTitle: 'Pricing & Plans  - kivtechs.cloud'
     });
 });
+
+
+
+
+// Utility to check if the user is logged in  
+//  only checking ulid as okta will be added after test 2 
+function isAuthenticated(req) {
+    return req.cookies.userULID || false; // Assuming you are checking based on the cookie
+}
+
+// Route for sitemap.xml
+router.get('/sitemap.xml', (req, res) => {
+    const isLoggedIn = isAuthenticated(req);  // Check if the user is authenticated
+
+    // Define guest URLs (accessible before login)
+    const guestUrls = [
+        '/',
+        '/terms',
+        '/privacy',
+        '/aimodels',
+        '/aiproducts',
+        '/support',
+        '/pricing'
+    ];
+
+    // Define restricted URLs (accessible after login)
+    const dashboardUrls = [
+        '/profile', 
+        '/settings', 
+        '/usage', 
+        '/notifications', 
+        '/reports', 
+        '/admin'
+    ];
+
+    // Build the sitemap URLs array based on authentication
+    const urlsToInclude = isLoggedIn ? [...guestUrls, ...dashboardUrls] : guestUrls;
+
+    // Generate the XML sitemap
+    const sitemap = `
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${urlsToInclude.map(url => `
+    <url>
+        <loc>https://kivtechs.cloud${url}</loc>
+        <lastmod>2024-12-01</lastmod>
+        <priority>${url.startsWith('/profile') || url.startsWith('/settings') ? 0.8 : 0.5}</priority>
+    </url>
+    `).join('')}
+</urlset>
+    `;
+
+    // Set the Content-Type header to application/xml
+    res.set('Content-Type', 'application/xml');
+    
+    // Send the generated sitemap
+    res.send(sitemap.trim());
+});
+
+
+
+
 
 // Catch-all route for 404
 router.use((req, res) => {
