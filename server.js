@@ -3,14 +3,12 @@ import path from 'path';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
-import { fileURLToPath } from 'url';  // This works in ESM
+
 
 import applyMiddleware from './middleware/ulidmiddleware.js';  // Custom ULID middleware
 import guestroutes from './routes/guestroutes.js';  // Corrected path
 
-// Resolve file paths in ESM format
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
 
 const app = express();
 const ENV_TYPE = process.env.ENV_TYPE || 'DEVELOPMENT';
@@ -60,6 +58,11 @@ const limiter = rateLimit({
     }
 });
 app.use(limiter);
+// Log client IPs for debugging
+app.use((req, res, next) => {
+    console.log(`Client IP: ${req.headers['x-forwarded-for'] || req.ip}`);
+    next();
+});
 
 // Use the routes defined in routes.js
 app.use('/', guestroutes);
@@ -72,7 +75,4 @@ app.use((req, res) => {
     });
 });
 
-// Export the Express app to work with Vercel serverless functions
-export default function handler(req, res) {
-  app(req, res);
-}
+export default app;

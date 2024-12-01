@@ -1,9 +1,8 @@
 {
-  "name": "kivtechs-v1-test",
+  "name": "kivtechs-test",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "vercel dev"
   },
