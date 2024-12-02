@@ -2,9 +2,29 @@
 
 <head>
   <meta charset="UTF-8">
-	<meta charset="UTF-8">
+  <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title><%= pageTitle ? pageTitle + ' - kivtechs.cloud' : 'kivtechs.cloud' %></title>
+<title id="dynamic-title"><%= pageTitle ? pageTitle : 'Home' %></title>
+<script>
+    // JavaScript to dynamically update the title
+    const titles = [
+        "<%= pageTitle ? pageTitle : 'Home' %>", // Current page
+        "Landing",                              // Current part
+        "kivtechs.cloud"                        // Brand name
+    ];
+    
+    let currentIndex = 0;
+
+    function updateTitle() {
+        currentIndex = (currentIndex + 1) % titles.length; // Cycle through titles
+        document.title = titles[currentIndex];
+    }
+
+    // Change the title every 3 seconds
+    setInterval(updateTitle, 3000);
+</script>
+
+
    
    <!-- Favicon icon -->
     <link rel="icon" href="https://siddh-kivtechs.github.io/logo/logo.svg" type="image/svg+xml" sizes="16x16">
