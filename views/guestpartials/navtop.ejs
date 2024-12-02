@@ -17,14 +17,47 @@
 						</div>
 					</div>
 
-					<div class="hidden min-[845px]:flex sm:space-x-8">
+	<!-- 				<div class="hidden min-[845px]:flex sm:space-x-8">
 						<a href="/" class="relative text-[#E730CA] hover:text-[#E730CA] inline-flex items-center font-bold before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:w-full before:bg-white" aria-current="page">Home</a>
 						<a href="/aimodels" class="relative text-white hover:text-[#E730CA] inline-flex items-center font-bold before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:w-0 before:bg-white before:transition-all before:hover:w-full before:duration-500"> Ai Models</a>
 						<a href="/aiproducts" class="relative text-white hover:text-[#E730CA] inline-flex items-center font-bold before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:w-0 before:bg-white before:transition-all before:hover:w-full before:duration-500"> Ai Products </a>
 						<a href="/pricing" class="relative text-white hover:text-[#E730CA] inline-flex items-center font-bold before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:w-0 before:bg-white before:transition-all before:hover:w-full before:duration-500"> Pricing & Plans</a>
 						<a href="/terms" class="relative text-white hover:text-[#E730CA] inline-flex items-center font-bold before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:w-0 before:bg-white before:transition-all before:hover:w-full before:duration-500"> Terms & Condition</a>
 							<a href="/privacy" class="relative text-white hover:text-[#E730CA] inline-flex items-center font-bold before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:w-0 before:bg-white before:transition-all before:hover:w-full before:duration-500"> Privacy Policy</a>
-					</div>
+					</div> -->
+					<div class="hidden min-[845px]:flex sm:space-x-8">
+    <a href="/" class="relative inline-flex items-center font-bold 
+        <%= activePage === 'main' ? 'text-[#E730CA] before:w-full' : 'text-white before:w-0' %>
+        before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:bg-white">
+        Home
+    </a>
+    <a href="/aimodels" class="relative inline-flex items-center font-bold 
+        <%= activePage === 'aimodels' ? 'text-[#E730CA] before:w-full' : 'text-white before:w-0' %>
+        before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:bg-white">
+        Ai Models
+    </a>
+    <a href="/aiproducts" class="relative inline-flex items-center font-bold 
+        <%= activePage === 'aiproducts' ? 'text-[#E730CA] before:w-full' : 'text-white before:w-0' %>
+        before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:bg-white">
+        Ai Products
+    </a>
+    <a href="/pricing" class="relative inline-flex items-center font-bold 
+        <%= activePage === 'Pricing' ? 'text-[#E730CA] before:w-full' : 'text-white before:w-0' %>
+        before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:bg-white">
+        Pricing & Plans
+    </a>
+    <a href="/terms" class="relative inline-flex items-center font-bold 
+        <%= activePage === 'tandc' ? 'text-[#E730CA] before:w-full' : 'text-white before:w-0' %>
+        before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:bg-white">
+        Terms & Condition
+    </a>
+    <a href="/privacy" class="relative inline-flex items-center font-bold 
+        <%= activePage === 'privacypolicy' ? 'text-[#E730CA] before:w-full' : 'text-white before:w-0' %>
+        before:content-[''] before:absolute before:bottom-2.5 before:left-1/2 before:transform before:-translate-x-1/2 before:h-[1.5px] before:bg-white">
+        Privacy Policy
+    </a>
+</div>
+
 
 					<div class="flex items-center space-x-7">
 						<a class="relative group hidden min-[845px]:flex bg-transparent min-w-44 w-44 h-12 rounded-lg overflow-hidden border border-[#E730CA] font-semibold text-[#E730CA] sm:hover:text-white sm:hover:border-[#561950] transition-all duration-700" style="will-change: transform" id="cta">
