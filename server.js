@@ -19,8 +19,13 @@ const app = express();
 app.set('trust proxy', 1);  // Vercel uses a proxy, this is required for proper IP resolution
 
 // Initialize MongoDB connection
+let dbConnectionReady = false;  // Flag to indicate if DB is connected
+
 connectToDatabase()
-    .then(() => console.log('Database connected and ready.'))
+    .then(() => {
+        console.log('Database connected and ready.');
+        dbConnectionReady = true;  // Mark database as connected
+    })
     .catch((error) => {
         console.error('Failed to connect to the database. Exiting...');
         process.exit(1); // Exit if database connection fails
@@ -41,6 +46,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Logging middleware using Morgan - output as JSON
 app.use(morgan(async (tokens, req, res) => {
+    if (!dbConnectionReady) {
+        console.error("Database not initialized. Skipping MongoDB logging.");
+        return; // Exit if the database is not initialized yet
+    }
+
     const ipAddress = req.headers['x-real-ip'] || req.headers['x-forwarded-for']?.split(',')[0] || req.headers['x-vercel-forwarded-for'] || tokens['remote-addr'](req, res);
 
     const logData = {
@@ -110,4 +120,12 @@ app.use((req, res) => {
     });
 });
 
-export default app;
+// Start the server only after database connection is established
+if (dbConnectionReady) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+} else {
+    console.error('Server could not start due to database connection issues.');
+}
