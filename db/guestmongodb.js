@@ -1,4 +1,3 @@
-// guestmongodb.js
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 
@@ -30,20 +29,15 @@ export const connectToDatabase = async () => {
         // Access the visitor (guest) database
         db = client.db(MONGO_DB_VISITOR);
 
-        // Ensure the database exists by creating a dummy collection or inserting a document
-        await db.createCollection('dummyCollection').catch(err => {
-            // If the collection already exists, ignore the error
-            if (err.codeName !== 'NamespaceExists') {
-                throw err;  // Re-throw other errors
-            }
-        });
+        // Check if the database exists by attempting to find collections
+        const collections = await db.listCollections().toArray();
+        const collectionNames = collections.map(collection => collection.name);
 
-        // Optionally, you can remove the dummy collection after ensuring the database exists
-        await db.collection('dummyCollection').drop().catch(err => {
-            if (err.codeName !== 'NamespaceNotFound') {
-                console.error('Failed to drop dummy collection:', err);
-            }
-        });
+        // If the necessary collection doesn't exist, create it
+        if (!collectionNames.includes('logs')) {
+            console.log('Creating "logs" collection as it does not exist.');
+            await db.createCollection('logs');
+        }
 
         return db;
     } catch (error) {

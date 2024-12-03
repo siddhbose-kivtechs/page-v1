@@ -62,25 +62,23 @@ app.use(morgan(async (tokens, req, res) => {
         part: PART
     };
 
-      // Log the data (optional)
+    // Log the data (optional)
     console.log(logData);
 
-    // Insert log data into MongoDB (assuming `getDb` gets the DB connection)
-    const db = await getDb();  
-    const logCollection = db.collection('logs');  // Log collection in MongoDB
-
+    // Asynchronous MongoDB log insertion (without blocking)
     try {
-        await logCollection.insertOne(logData);  // Insert log data into MongoDB
-        console.log('Log inserted into MongoDB');
+        const db = await getDb();  // Get the DB connection
+        const logCollection = db.collection('logs');  // Log collection in MongoDB
+        // Asynchronously insert log data (does not block request cycle)
+        logCollection.insertOne(logData).catch(dbError => {
+            console.error('Error inserting log into MongoDB:', dbError.message);
+        });
     } catch (dbError) {
-        console.error('Error inserting log into MongoDB:', dbError.message);
+        console.error('Error accessing MongoDB:', dbError.message);
     }
 
     return null; // Return null after logging to MongoDB
-};
-
-// Using Morgan middleware for logging requests
-app.use(morgan(async (tokens, req, res) => await logData(tokens, req, res)));
+}));
 
 // Rate limiting middleware
 const limiter = rateLimit({
