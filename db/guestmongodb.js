@@ -1,14 +1,11 @@
-// guestmongodb.js
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const MONGO_URI_VISITOR = process.env.MONGO_URI_VISITOR;  // URI for visitor (guest) database
-console.log(`Mongo DB connect string is ---> ${MONGO_URI_VISITOR}`);
-
 const MONGO_DB_VISITOR = process.env.MONGO_DB_VISITOR;  // Database name for visitor (guest)
-console.log(`Mongo db visitor is -----> ${MONGO_DB_VISITOR}`);
+const REQUIRED_COLLECTION = 'logs';  // Replace with the name of the required collection
 
 let db;
 let client;
@@ -23,27 +20,25 @@ export const connectToDatabase = async () => {
 
     try {
         // Create a new MongoDB client and connect
-        client = new MongoClient(MONGO_URI_VISITOR);
+        client = new MongoClient(MONGO_URI_VISITOR, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
         await client.connect();
         console.log('Connected to the Guest (Visitor) MongoDB');
 
         // Access the visitor (guest) database
         db = client.db(MONGO_DB_VISITOR);
 
-        // Ensure the database exists by creating a dummy collection or inserting a document
-        await db.createCollection('dummyCollection').catch(err => {
-            // If the collection already exists, ignore the error
-            if (err.codeName !== 'NamespaceExists') {
-                throw err;  // Re-throw other errors
-            }
-        });
-
-        // Optionally, you can remove the dummy collection after ensuring the database exists
-        await db.collection('dummyCollection').drop().catch(err => {
-            if (err.codeName !== 'NamespaceNotFound') {
-                console.error('Failed to drop dummy collection:', err);
-            }
-        });
+        // Ensure the required collection exists
+        const collections = await db.listCollections({ name: REQUIRED_COLLECTION }).toArray();
+        if (collections.length === 0) {
+            console.log(`Collection "${REQUIRED_COLLECTION}" does not exist. Creating it...`);
+            await db.createCollection(REQUIRED_COLLECTION);
+            console.log(`Collection "${REQUIRED_COLLECTION}" created successfully.`);
+        } else {
+            console.log(`Collection "${REQUIRED_COLLECTION}" already exists.`);
+        }
 
         return db;
     } catch (error) {
