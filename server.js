@@ -1,3 +1,4 @@
+
 import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
@@ -7,25 +8,26 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { connectToDatabase, getDb } from './db/guestmongodb.js';
 
+import applyMiddleware from './middleware/ulidmiddleware.js';
+import guestroutes from './routes/guestroutes.js';
 
-import applyMiddleware from './middleware/ulidmiddleware.js';  // Custom ULID middleware
-import guestroutes from './routes/guestroutes.js';  // Corrected path
-
-const PART=process.env.PART;
+const PART = process.env.PART;
+const ENV_TYPE = process.env.ENV_TYPE || 'DEVELOPMENT';
 
 const app = express();
-const ENV_TYPE = process.env.ENV_TYPE || 'DEVELOPMENT';
+
+// Set Express to trust proxy for Vercel
+app.set('trust proxy', 1);
 
 // Initialize MongoDB connection
 connectToDatabase()
     .then(() => console.log('Database connected and ready.'))
     .catch((error) => {
         console.error('Failed to connect to the database. Exiting...');
-        process.exit(1); // Exit the process if the database connection fails
+        process.exit(1); // Exit if database connection fails
     });
 
-
-// Use cookie-parser before your other middleware
+// Use cookie-parser
 app.use(cookieParser());
 
 // Apply custom middleware for ULID session
@@ -38,63 +40,49 @@ app.set('views', path.join(__dirname, 'views'));
 // Serve static files (CSS, JS, images, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Logging middleware using Morgan - show output as JSON
-// app.use(morgan((tokens, req, res) => {
-//     const logData = {
-//         date: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-//         remoteAddr: tokens['remote-addr'](req, res),
-//         method: tokens.method(req, res),
-//         url: tokens.url(req, res),
-//         status: tokens.status(req, res),
-//         contentLength: tokens.res(req, res, 'content-length') || 0,
-//         userAgent: tokens['user-agent'](req, res),
-//         responseTime: tokens['response-time'](req, res) + ' ms',
-//         ulidsession: req.ulid || 'N/A',
-//         ENV_TYPE: ENV_TYPE,
-//         part: PART
-//     };
-
-//     console.log(logData);
-//     return JSON.stringify(logData);
-// }));
-// Logging middleware using Morgan - show output as JSON
+// Logging middleware using Morgan - output as JSON
 app.use(morgan(async (tokens, req, res) => {
+    const ipAddress = req.headers['x-real-ip'] || req.headers['x-forwarded-for']?.split(',')[0] || req.headers['x-vercel-forwarded-for'] || tokens['remote-addr'](req, res);
+
     const logData = {
         date: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }), // Converts to IST
-        remoteAddr: tokens['remote-addr'](req, res),
+        remoteAddr: ipAddress,
         method: tokens.method(req, res),
         url: tokens.url(req, res),
         status: tokens.status(req, res),
         contentLength: tokens.res(req, res, 'content-length') || 0,
         userAgent: tokens['user-agent'](req, res),
         responseTime: tokens['response-time'](req, res) + ' ms',
-        ulidsession: req.ulid || 'N/A',
-        ENV_TYPE: ENV_TYPE,
+        ulidsession: req.ulid,
+        ENV_TYPE,
+        VERCEL_latitude: req.headers['x-vercel-ip-latitude'] || 'Unknown',
+        VERCEL_longitude: req.headers['x-vercel-ip-longitude'] || 'Unknown',
+        VERCEL_city: req.headers['x-vercel-ip-city'] || 'Unknown',
+        VERCEL_region: req.headers['x-vercel-ip-country-region'] || 'Unknown',
+        VERCEL_country: req.headers['x-vercel-ip-country'] || 'Unknown',
         part: PART
     };
 
     // Log to console
     console.log(logData);
 
-    // Insert log data into MongoDB (ensure MongoDB insert happens correctly)
+    // Insert log data into MongoDB
     try {
-        const db = await getDb();  // Assuming `getDb` retrieves the MongoDB connection
-        const logCollection = db.collection('logs');  // Log collection in MongoDB
-        await logCollection.insertOne(logData);  // Insert log data into MongoDB
+        const db = await getDb();
+        const logCollection = db.collection('logs');
+        await logCollection.insertOne(logData);
         console.log('Log inserted into MongoDB');
     } catch (error) {
         console.error('Error inserting log into MongoDB:', error.message);
     }
 
-    // Return the log data as a string for morgan
-    return JSON.stringify(logData);  // Resolves the promise properly and returns the string
+    return JSON.stringify(logData); // Return the log data as a string
 }));
-
 
 // Rate limiting middleware
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, 
+    max: 100,
     handler: (req, res) => {
         res.status(429).json({
             status: 'error',
@@ -103,6 +91,7 @@ const limiter = rateLimit({
     }
 });
 app.use(limiter);
+
 // Log client IPs for debugging
 app.use((req, res, next) => {
     console.log(`Client IP: ${req.headers['x-forwarded-for'] || req.ip}`);
@@ -119,7 +108,5 @@ app.use((req, res) => {
         errorMessage: `Sorry, the page "${req.originalUrl}" does not exist.`
     });
 });
-
-
 
 export default app;
