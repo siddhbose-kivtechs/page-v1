@@ -25,6 +25,11 @@ connectToDatabase()
     .then(() => {
         console.log('Database connected and ready.');
         dbConnectionReady = true;  // Mark database as connected
+        // Start the server after DB connection is successful
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
     })
     .catch((error) => {
         console.error('Failed to connect to the database. Exiting...');
@@ -119,13 +124,3 @@ app.use((req, res) => {
         errorMessage: `Sorry, the page "${req.originalUrl}" does not exist.`
     });
 });
-
-// Start the server only after database connection is established
-if (dbConnectionReady) {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
-} else {
-    console.error('Server could not start due to database connection issues.');
-}
