@@ -21,8 +21,6 @@ export const connectToDatabase = async () => {
     try {
         // Create a new MongoDB client and connect
         client = new MongoClient(MONGO_URI_VISITOR, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
         });
         await client.connect();
         console.log('Connected to the Guest (Visitor) MongoDB');
