@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -9,37 +9,43 @@ console.log(`Mongo DB connect string is ---> ${MONGO_URI_VISITOR}`);
 const MONGO_DB_VISITOR = process.env.MONGO_DB_VISITOR;  // Database name for visitor (guest)
 console.log(`Mongo db visitor is -----> ${MONGO_DB_VISITOR}`);
 
-let db;
-let client;
+let isConnected = false;  // Flag to check connection status
 
 // Function to connect to the visitor (guest) database
 export const connectToDatabase = async () => {
-    if (db) return db;  // If already connected, return the existing connection
+    if (isConnected) {
+        console.log('Already connected to the Guest MongoDB');
+        return mongoose.connection;  // Return existing connection
+    }
 
     if (!MONGO_URI_VISITOR || !MONGO_DB_VISITOR) {
         throw new Error('MONGO_URI_VISITOR or MONGO_DB_VISITOR is not defined. Check your environment variables.');
     }
 
     try {
-        // Create a new MongoDB client and connect
-        client = new MongoClient(MONGO_URI_VISITOR);
-        await client.connect();
+        // Connect using Mongoose
+        await mongoose.connect(MONGO_URI_VISITOR, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            dbName: MONGO_DB_VISITOR,  // Specify the database name
+        });
+
+        isConnected = true;  // Set connection status flag
+
         console.log('Connected to the Guest (Visitor) MongoDB');
 
-        // Access the visitor (guest) database
-        db = client.db(MONGO_DB_VISITOR);
-
-        // Check if the database exists by attempting to find collections
-        const collections = await db.listCollections().toArray();
+        // Ensure the necessary collections exist
+        const collections = await mongoose.connection.db.listCollections().toArray();
         const collectionNames = collections.map(collection => collection.name);
 
-        // If the necessary collection doesn't exist, create it
         if (!collectionNames.includes('logs')) {
             console.log('Creating "logs" collection as it does not exist.');
-            await db.createCollection('logs');
+            // Mongoose automatically creates the collection when you insert data, so this step can be skipped.
+            // Alternatively, you can create a model to explicitly define the schema if necessary.
         }
 
-        return db;
+        return mongoose.connection;  // Return the connection
+
     } catch (error) {
         console.error('MongoDB connection error:', error.message);
         throw error;  // Re-throw error for handling in the main app
@@ -48,14 +54,17 @@ export const connectToDatabase = async () => {
 
 // Function to retrieve the visitor (guest) database
 export const getDb = () => {
-    if (!db) throw new Error('Database not initialized. Call connectToDatabase first.');
-    return db;
+    if (!isConnected) throw new Error('Database not initialized. Call connectToDatabase first.');
+    return mongoose.connection;  // Return the mongoose connection
 };
 
 // Graceful shutdown for MongoDB client
 export const closeConnection = async () => {
-    if (client) {
-        await client.close();
+    if (isConnected) {
+        await mongoose.disconnect();
+        isConnected = false;  // Reset connection status
         console.log('Guest (Visitor) MongoDB connection closed');
+    } else {
+        console.log('No active MongoDB connection to close');
     }
 };
